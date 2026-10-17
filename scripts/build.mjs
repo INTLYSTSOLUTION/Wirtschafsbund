@@ -1,0 +1,22 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import * as PDFLib from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import { pages } from './pages.mjs';
+import { site } from '../src/data/site.js';
+import { legal } from '../src/data/legal.js';
+import { createApplicationPdf } from '../src/assets/pdf.js';
+const root=path.resolve('dist');
+await fs.rm(root,{recursive:true,force:true});await fs.mkdir(root,{recursive:true});
+await fs.cp('src/assets',path.join(root,'assets'),{recursive:true,filter:source=>!source.endsWith('-variable.ttf')});
+await fs.writeFile(path.join(root,'assets/config.js'),`export const siteConfig = Object.freeze(${JSON.stringify(site,null,2)});\n`);
+for(const[file,html]of Object.entries(pages))await fs.writeFile(path.join(root,file),html);
+const assets={};for(const[key,file]of Object.entries({sans:'fonts/Inter-Regular.ttf',serif:'fonts/CormorantGaramond-Semibold.ttf',logo:'pferd-original.jpg'}))assets[key]=await fs.readFile(`src/assets/${file}`);
+const bytes=await createApplicationPdf({},assets,{PDFLib,fontkit},site);
+await fs.writeFile(path.join(root,'assets/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf'),bytes);
+await fs.mkdir('../output/pdf',{recursive:true});await fs.writeFile('../output/pdf/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf',bytes);
+await fs.writeFile(path.join(root,'robots.txt'),legal.releaseConfirmed?'User-agent: *\nAllow: /\n':'User-agent: *\nDisallow: /\n');
+const csp="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests";
+await fs.writeFile(path.join(root,'_headers'),`/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()\n`);
+if(site.publicBaseUrl&&legal.releaseConfirmed){const base=site.publicBaseUrl.replace(/\/$/,'');await fs.writeFile(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${Object.keys(pages).filter(p=>!['404.html','impressum.html','datenschutz.html'].includes(p)).map(p=>`<url><loc>${base}/${p}</loc></url>`).join('')}</urlset>`);}
+console.log(`Statischer Build: ${Object.keys(pages).length} Seiten; ausfüllbare PDF ${bytes.length} Bytes. Keine Veröffentlichung.`);

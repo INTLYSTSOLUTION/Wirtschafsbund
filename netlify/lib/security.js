@@ -1,4 +1,5 @@
-// Shared by the edge handlers and security tests. No credentials are bundled.
+// Shared by the edge handlers and security tests. No plaintext access keys are bundled.
+import {ACCESS_KEY_DIGESTS} from './access-keys.js';
 export const COOKIE = '__Host-wb_session';
 export const SESSION_SECONDS = 8 * 60 * 60;
 const enc = new TextEncoder();
@@ -27,14 +28,15 @@ export function redirect(path, cookie) {
   return privateResponse(new Response(null,{status:303,headers}));
 }
 export function clearCookie(){return `${COOKIE}=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Strict`;}
-export function readSettings(env) {
+export function readSettings(env, keyDigests=ACCESS_KEY_DIGESTS) {
   const password=env?.get('ACCESS_PASSWORD')||'';
   const secret=env?.get('ACCESS_SESSION_SECRET')||'';
   const hosts=(env?.get('ACCESS_ALLOWED_HOSTS')||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
   // Fail closed on missing or weak configuration. Hosts are exact, never wildcards.
-  if(password.length<20||password.length>256||secret.length<43||secret.length>256||password===secret||!hosts.length)return null;
+  if(!Array.isArray(keyDigests)||keyDigests.length>1000||keyDigests.some(d=>typeof d!=='string'||!/^([a-f0-9]{64})$/.test(d))||new Set(keyDigests).size!==keyDigests.length)return null;
+  if((password&&(password.length<20||password.length>256))||(!password&&!keyDigests.length)||secret.length<43||secret.length>256||password===secret||!hosts.length)return null;
   if(hosts.some(h=>h.includes('://')||h.includes('/')||h.includes('*')||h.includes('@')||!/^([a-z0-9-]+\.)*[a-z0-9-]+(?::\d{1,5})?$/.test(h)))return null;
-  return {password,secret,hosts};
+  return {password,secret,hosts,keyDigests:[...keyDigests]};
 }
 export function validHost(request,settings) {
   const url=new URL(request.url);
@@ -46,16 +48,21 @@ export function sameOrigin(request) {
 function b64(bytes){return btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');}
 function bytes(text){if(!/^[A-Za-z0-9_-]+$/.test(text))throw Error('Invalid encoding');return Uint8Array.from(atob(text.replaceAll('-','+').replaceAll('_','/')),c=>c.charCodeAt(0));}
 async function key(settings){
-  // Deriving the signing key from BOTH secrets revokes sessions after either changes.
+  // Bind sessions to the secret, optional legacy password and complete active key list.
+  // Removing any key and redeploying also invalidates all existing sessions.
   const base=await crypto.subtle.importKey('raw',enc.encode(settings.secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
-  const derived=await crypto.subtle.sign('HMAC',base,enc.encode('wirtschaftsbund-session-v1\0'+settings.password));
+  const derived=await crypto.subtle.sign('HMAC',base,enc.encode('wirtschaftsbund-session-v2\0'+JSON.stringify([settings.password,settings.keyDigests])));
   return crypto.subtle.importKey('raw',derived,{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
 }
 export async function passwordMatches(candidate,settings) {
-  if(typeof candidate!=='string'||candidate.length>256)return false;
-  const [a,b]=await Promise.all([candidate,settings.password].map(v=>crypto.subtle.digest('SHA-256',enc.encode(v))));
-  const left=new Uint8Array(a),right=new Uint8Array(b);let diff=0;
-  for(let i=0;i<left.length;i++)diff|=left[i]^right[i];return diff===0;
+  if(!settings||typeof candidate!=='string'||!candidate.length||candidate.length>256)return false;
+  const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(candidate)));
+  const expected=settings.keyDigests.map(hex=>Uint8Array.from(hex.match(/../g),pair=>parseInt(pair,16)));
+  if(settings.password)expected.push(new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(settings.password))));
+  // Compare every digest; no early return reveals the matching key's position.
+  let matched=0;
+  for(const value of expected){let diff=0;for(let i=0;i<digest.length;i++)diff|=digest[i]^value[i];matched|=Number(diff===0);}
+  return matched===1;
 }
 export async function issueSession(settings,origin,now=Math.floor(Date.now()/1000)) {
   const payload=b64(enc.encode(JSON.stringify({v:1,aud:origin,iat:now,exp:now+SESSION_SECONDS,nonce:b64(crypto.getRandomValues(new Uint8Array(16)))})));

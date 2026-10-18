@@ -1,7 +1,7 @@
 import {accessPage} from '../lib/login-view.js';
 import {readSettings,validHost,hasSession,sameOrigin,clearCookie,redirect,privateResponse} from '../lib/security.js';
 // Exact allowlist. No project content, applications, PDFs or vendor scripts are public.
-const PUBLIC=new Set(['/impressum.html','/impressum','/datenschutz.html','/datenschutz','/robots.txt','/assets/styles.css','/assets/pferd-original.jpg',
+const PUBLIC=new Set(['/impressum.html','/impressum','/datenschutz.html','/datenschutz','/robots.txt','/assets/styles.css','/assets/access.css','/assets/pferd-original.jpg',
   ...['inter-latin-400-normal','inter-latin-ext-400-normal','inter-latin-500-normal','inter-latin-ext-500-normal','cormorant-garamond-latin-600-normal','cormorant-garamond-latin-ext-600-normal'].map(name=>`/assets/fonts/${name}.woff2`)]);
 export default async function access(request,context){
   try{

@@ -20,7 +20,7 @@ if project.exists():shutil.rmtree(project)
 project.mkdir()
 for source in files:
  target=project/source.relative_to(root);target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
-required=['netlify.toml','netlify/edge-functions/00-access.js','netlify/edge-functions/10-login.js','netlify/lib/security.js','netlify/lib/login-view.js','dist/index.html','dist/assets/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf','package-lock.json']
+required=['netlify.toml','netlify/edge-functions/00-access.js','netlify/edge-functions/10-login.js','netlify/lib/security.js','netlify/lib/login-view.js','netlify/lib/access-keys.js','src/data/access.js','dist/assets/access.css','dist/index.html','dist/assets/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf','package-lock.json']
 for name in required:assert (project/name).is_file(),name
 archive=out/'Der_Wirtschaftsbund_Netlify_Projekt.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:

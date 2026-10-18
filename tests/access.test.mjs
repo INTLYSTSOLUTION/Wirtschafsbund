@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {randomBytes} from 'node:crypto';
+import {randomBytes,createHash} from 'node:crypto';
 import access,{config as gateConfig} from '../netlify/edge-functions/00-access.js';
 import login,{config as loginConfig} from '../netlify/edge-functions/10-login.js';
 import {COOKIE,SESSION_SECONDS,readSettings,issueSession,hasSession,sessionCookie,passwordMatches} from '../netlify/lib/security.js';
@@ -17,7 +17,7 @@ async function guard(request){let calls=0;const response=await access(request,{n
 function privateHeaders(response){for(const name of ['Cache-Control','CDN-Cache-Control','Netlify-CDN-Cache-Control'])assert.match(response.headers.get(name),/no-store/);assert.match(response.headers.get('X-Robots-Tag'),/noindex/);assert.equal(response.headers.get('ETag'),null);}
 
 test('missing or weak settings fail closed, including direct PDF',async()=>{
- for(const values of [{},{...credentials,ACCESS_PASSWORD:''},{...credentials,ACCESS_SESSION_SECRET:'short'},{...credentials,ACCESS_ALLOWED_HOSTS:'*.example.test'},{...credentials,ACCESS_ALLOWED_HOSTS:''}]){
+ for(const values of [{},{...credentials,ACCESS_PASSWORD:'short'},{...credentials,ACCESS_SESSION_SECRET:'short'},{...credentials,ACCESS_ALLOWED_HOSTS:'*.example.test'},{...credentials,ACCESS_ALLOWED_HOSTS:''}]){
   assert.equal(readSettings(environment(values)),null);setEnv(values);
   for(const path of ['/','/aufnahme.html','/assets/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf','/anmelden']){const {response,calls}=await guard(req(path));assert.equal(response.status,503);assert.equal(calls,0);assert.doesNotMatch(await response.text(),/PRIVATE CONTENT|<form/);privateHeaders(response);}
  }setEnv();
@@ -31,10 +31,10 @@ test('every protected page, script and direct download requires authentication',
  }
 });
 test('public allowlist is small and remains readable without configuration',async()=>{
- setEnv({});for(const path of ['/impressum.html','/datenschutz.html','/robots.txt','/assets/styles.css','/assets/pferd-original.jpg','/assets/fonts/inter-latin-400-normal.woff2']){const {response,calls}=await guard(req(path));assert.equal(response.status,200);assert.equal(calls,1);privateHeaders(response);}setEnv();
+ setEnv({});for(const path of ['/impressum.html','/datenschutz.html','/robots.txt','/assets/styles.css','/assets/access.css','/assets/pferd-original.jpg','/assets/fonts/inter-latin-400-normal.woff2']){const {response,calls}=await guard(req(path));assert.equal(response.status,200);assert.equal(calls,1);privateHeaders(response);}setEnv();
 });
 test('access page is minimal and does not contain protected data or credentials',async()=>{
- const {response,calls}=await guard(req('/zugang'));const text=await response.text();assert.equal(response.status,200);assert.equal(calls,0);assert.match(text,/Geschützter Bereich/);assert.match(text,/type="password"/);assert.match(text,/action="\/anmelden"/);assert.doesNotMatch(text,/PRIVATE CONTENT|projekte.html|aufnahme.html/);for(const value of [credentials.ACCESS_PASSWORD,credentials.ACCESS_SESSION_SECRET])assert.ok(!text.includes(value));privateHeaders(response);
+ const {response,calls}=await guard(req('/zugang'));const text=await response.text();assert.equal(response.status,200);assert.equal(calls,0);assert.match(text,/<title>Zugang<\/title>/);assert.match(text,/>Bestätigen<\/button>/);assert.doesNotMatch(text,/Der Wirtschaftsbund|pferd-original|wordmark|<img|<header|<footer|Persönlicher Zugang/);assert.match(text,/type="password"/);assert.match(text,/https:\/\/www.tiktok.com\/@der_wirtschaftsbund/);assert.doesNotMatch(text,/Instagram/);assert.match(text,/action="\/anmelden"/);assert.doesNotMatch(text,/PRIVATE CONTENT|projekte.html|aufnahme.html/);for(const value of [credentials.ACCESS_PASSWORD,credentials.ACCESS_SESSION_SECRET])assert.ok(!text.includes(value));privateHeaders(response);
 });
 test('wrong password does not issue cookie or echo submitted value',async()=>{
  const wrong=randomBytes(24).toString('base64url');const response=await login(post(body(wrong)));assert.equal(response.status,401);assert.equal(response.headers.get('Set-Cookie'),null);assert.ok(!(await response.text()).includes(wrong));privateHeaders(response);assert.equal(await passwordMatches(wrong,settings),false);
@@ -71,4 +71,17 @@ test('unexpected runtime and upstream errors remain closed',async()=>{
 });
 test('deployment declarations enforce uncached all-path gate and platform rate limit',()=>{
  assert.deepEqual(gateConfig,{path:'/*',cache:'off',onError:'fail'});assert.equal(loginConfig.path,'/anmelden');assert.equal(loginConfig.method,'POST');assert.equal(loginConfig.onError,'fail');assert.equal(loginConfig.cache,'off');assert.deepEqual(loginConfig.rateLimit,{windowLimit:8,windowSize:180,aggregateBy:['ip','domain']});
+});
+
+const hash=value=>createHash('sha256').update(value).digest('hex');
+test('independent key digests work without a shared password; malformed lists fail closed',async()=>{
+ const keys=Array.from({length:3},()=>randomBytes(24).toString('base64url'));
+ const values={...credentials,ACCESS_PASSWORD:''};const keySettings=readSettings(environment(values),keys.map(hash));
+ assert.ok(keySettings);for(const value of keys)assert.equal(await passwordMatches(value,keySettings),true);
+ for(const value of ['',null,'wrong',keys[0]+'x',keys[0].slice(1),keys[0]+' '])assert.equal(await passwordMatches(value,keySettings),false);
+ for(const list of [[],['bad'],[keys[0]],[hash(keys[0]),hash(keys[0])],null])assert.equal(readSettings(environment(values),list),null);
+ const token=await issueSession(keySettings,origin);const request=req('/',{headers:{Cookie:`${COOKIE}=${token}`}});
+ const changed=readSettings(environment(values),keys.slice(1).map(hash));
+ assert.equal(await hasSession(request,keySettings),true);assert.equal(await hasSession(request,changed),false);
+ assert.equal(await passwordMatches(keys[0],changed),false);assert.equal(await passwordMatches(keys[1],changed),true);
 });

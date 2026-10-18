@@ -1,6 +1,6 @@
 # Der Wirtschaftsbund
 
-Website für den persönlich zusammengestellten Hamburger Schüler-Wirtschaftsbund. Original-Pferdelogo, Marineblau, lokale Schriften, sieben HTML-Seiten und lokale, kostenfreie PDF-Erstellung bleiben erhalten. Zugang nur nach persönlicher Weitergabe eines gemeinsamen Passworts. Keine öffentliche Selbstregistrierung.
+Website für den persönlich zusammengestellten Hamburger Schüler-Wirtschaftsbund. Original-Pferdelogo, Marineblau, lokale Schriften, sieben HTML-Seiten und lokale, kostenfreie PDF-Erstellung bleiben erhalten. Zugang nach persönlicher Weitergabe eines von 100 zufälligen Schlüsseln. Schlichte Navy-Vorschaltseite mit Passwortfeld, „Bestätigen“ und TikTok-Kontakt @der_wirtschaftsbund, ohne Vereinslogo oder Überschrift. Keine öffentliche Selbstregistrierung.
 
 **Netlify-Version:** Der serverseitige Schutz besteht aus zwei Edge Functions. `dist/` allein ist keine geschützte Website. Veröffentlichung ausschließlich über Git-Anbindung oder Netlify CLI aus dem vollständigen Projekt; siehe [Netlify-Anleitung](docs/HOSTING.md). Noch kein tatsächliches Netlify-Deployment.
 
@@ -55,7 +55,7 @@ Keine Produktionszugangsdaten, `.env`, Git-Metadaten, Netlify-Kontodaten, Testau
 
 ## Zugang und PDF
 
-Netlify-Variablen: `ACCESS_PASSWORD`, `ACCESS_SESSION_SECRET`, `ACCESS_ALLOWED_HOSTS`. Ohne vollständige Konfiguration bleibt der Bereich geschlossen. Maximal acht Stunden gültiges signiertes, origin-gebundenes Secure-/HttpOnly-/SameSite-Strict-Cookie; Passwort- oder Schlüsselwechsel plus neues Deployment widerruft alte Sitzungen. Alle geschützten Antworten `no-store`. Keine Frontend-Zugangsdaten oder Web-Storage-Schalter.
+Erforderliche Netlify-Variablen: `ACCESS_SESSION_SECRET`, `ACCESS_ALLOWED_HOSTS`. `ACCESS_PASSWORD` bleibt leer bzw. wird gelöscht; nur zur Übergangskompatibilität kann ein zusätzliches gemeinsames Passwort gesetzt werden. Die 100 gültigen Schlüssel sind als SHA-256-Prüfsummen in `netlify/lib/access-keys.js` hinterlegt. Die privaten Schlüsseldateien liegen außerhalb des Repositorys und des Projekt-ZIPs. Ohne vollständige Konfiguration bleibt der Bereich geschlossen. Maximal acht Stunden gültiges signiertes, origin-gebundenes Secure-/HttpOnly-/SameSite-Strict-Cookie; Änderung der aktiven Prüfsummenliste, des optionalen gemeinsamen Passworts oder des Sitzungsschlüssels plus neues Deployment widerruft alte Sitzungen. Alle geschützten Antworten `no-store`. Keine Frontend-Zugangsdaten oder Web-Storage-Schalter.
 
 Fünf Pflichtfelder, vier freiwillige Angaben. Antworten bleiben im Arbeitsspeicher des Browsers. Keine Formularübermittlung, Tracker oder externen PDF-Dienste. Leere Vorlage: drei A4-Seiten mit neun echten AcroForm-Feldern. Bei langen Online-Antworten erzeugt der Browser zusätzliche Seiten und editierbare Fortsetzungsfelder; 10,5-pt-Schrift bleibt erhalten. Die feste leere PDF wächst beim nachträglichen Ausfüllen in einem PDF-Programm nicht automatisch. Vor dem Versand gespeicherte PDFs wieder öffnen und vollständig prüfen.
 

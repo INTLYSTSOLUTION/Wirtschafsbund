@@ -8,26 +8,37 @@ Stand: 18. Oktober 2026. Vorbereitet und lokal geprüft. Die geplante Hauptdomai
 
 **Ein Drag-and-drop-Upload von `dist/` oder einem statischen ZIP installiert die Edge Functions nicht. Er würde den vorgesehenen Passwortschutz umgehen.** Ausschließlich Git-Anbindung oder Netlify CLI aus der vollständigen Projektwurzel verwenden. Alte statische Uploadpakete und deren Hostinganleitung sind durch dieses Paket ersetzt.
 
-## Drei Umgebungsvariablen setzen
+## Zwei erforderliche Umgebungsvariablen setzen
 
 Im Netlify-Projekt unter **Project configuration → Environment variables** anlegen. Die Werte müssen für den Scope **Functions** und den tatsächlich verwendeten Deployment-Kontext verfügbar sein; falls der Tarif keine Scope-Auswahl anbietet, die angebotene umfassende Gültigkeit nutzen. Nicht in `netlify.toml`, HTML, Git, Screenshots oder Chat eintragen. Keine Zugangsdaten als CLI-Argumente in der Shell-Historie speichern.
 
 | Name | Inhalt |
 | --- | --- |
-| `ACCESS_PASSWORD` | Persönlich weitergegebenes, zufällig erzeugtes Passwort. Mindestens 20, höchstens 256 Zeichen; empfohlen mindestens 32 zufällige Bytes als Base64url-Zeichenfolge aus einem Passwortmanager. |
+| `ACCESS_PASSWORD` | **Leer lassen bzw. löschen.** Nur für die Übergangskompatibilität wird ein bestehendes gemeinsames Passwort weiterhin unterstützt (20–256 Zeichen). Ohne diese Variable gelten ausschließlich die 100 einzeln ausgegebenen Schlüssel. |
 | `ACCESS_SESSION_SECRET` | Separater, unabhängiger zufälliger Schlüssel: mindestens 43, höchstens 256 Zeichen; empfohlen mindestens 32 zufällige Bytes als Base64url. Niemals an Besucher weitergeben. |
 | `ACCESS_ALLOWED_HOSTS` | Für die geplante Hauptdomain: `wirtschaftsbund.cloud`. Ohne `https://`, Pfad oder Sternchen. Für die Prüfung vor der Domainverbindung die tatsächlich zugewiesene `*.netlify.app`-Hauptadresse zusätzlich mit Komma eintragen. Keine Adresse erraten und keinen Stern als Wert verwenden. |
 
-Fehlt ein Wert, ist er zu kurz oder passt der aufgerufene Host nicht, antwortet der geschützte Bereich mit **503**. Es gibt kein Standardpasswort. Impressum, Datenschutz, Logo, CSS und die nötigen Webschriften bleiben öffentlich erreichbar.
+Fehlt der Sitzungsschlüssel oder die Hostliste, ist eine Einstellung ungültig oder passt der aufgerufene Host nicht, antwortet der geschützte Bereich mit **503**. Es gibt kein Standardpasswort. Die 100 Zugangsschlüssel wurden zufällig mit jeweils 192 Bit erzeugt und getrennt übergeben. Im Servercode `netlify/lib/access-keys.js` stehen nur SHA-256-Prüfsummen; diese Prüfsummen sind selbst keine gültigen Zugangsschlüssel. Impressum, Datenschutz, Logo, CSS und die nötigen Webschriften bleiben über ihre direkten Adressen öffentlich erreichbar.
 
 Netlify übernimmt Edge-Umgebungsvariablen **beim Deployment**. Jede Änderung benötigt einen neuen Build mit Deployment. Ein bloßes Speichern im Dashboard ändert bereits veröffentlichte Edge Functions nicht.
+
+## Die getrennt übergebenen Dateien
+
+- `Wirtschaftsbund_100_Zugangsschluessel.txt`: 100 nummerierte Zugangsschlüssel. Nur den jeweiligen Schlüssel weitergeben; die Nummer gehört nicht zur Eingabe. Niemals die ganze Liste veröffentlichen.
+- `Netlify_Umgebungsvariablen.env`: separater Sitzungsschlüssel und geplante Hostliste für die Netlify-Einstellungen. **Nur für die Betreiber**, niemals an Besucher geben oder ins Repository/ZIP/`dist/` kopieren. Die Datei wurde mit Zugriff nur für den lokalen Benutzer angelegt.
+
+Die vollständigen Schlüssel und diese `.env` sind absichtlich weder im öffentlichen GitHub-Repository noch im Projekt-ZIP enthalten. Nach Eintragen von `ACCESS_SESSION_SECRET` und `ACCESS_ALLOWED_HOSTS` neu deployen; ein bestehendes `ACCESS_PASSWORD` löschen, wenn nur diese 100 Schlüssel gelten sollen. Vor der Einrichtung funktionieren sie nur in der lokalen Prüfung, nicht auf einer noch nicht bereitgestellten Website.
+
+Neue 100er-Liste bei Bedarf ausdrücklich erzeugen: `node scripts/create-access-keys.mjs /absoluter/pfad/zu/einem/neuen/privaten/ordner`. Das ersetzt die Prüfsummenliste im Projekt und erzeugt einen neuen Sitzungsschlüssel. Bestehende private Dateien werden nicht überschrieben. Den Zielordner außerhalb des Projekts halten und von jeder Git-Veröffentlichung ausschließen. Anschließend Umgebungswerte aktualisieren, Code hochladen und neu deployen. Alte Listen sicher verwahren oder löschen, sobald sie nicht mehr benötigt werden.
+
+Die Vorschaltseite zeigt keinen Vereinsnamen, kein Logo und keinen Leitspruch. Sie besteht aus Navy-Hintergrund, leerem Passwortfeld, „Bestätigen“ und dem vom Auftraggeber bestätigten TikTok-Link `@der_wirtschaftsbund`. Das Profil wird erst nach Klick geöffnet; es gibt keine TikTok-Einbettung. Der Handle wird in `src/data/access.js` gepflegt. Die reduzierte Darstellung bedeutet keine bestätigte rechtliche Ausnahme oder Unsichtbarkeit gegenüber Suchdiensten.
 
 ## Weg A: Git-Anbindung
 
 1. Vor internen Inhalten ein **privates Repository** verwenden. Das bisherige Repository `INTLYSTSOLUTION/Wirtschafsbund` ist öffentlich; Netlify schützt keine Kopien auf GitHub. Seine Sichtbarkeit und alte Git-Stände sind gesondert zu behandeln.
 2. Das vollständige Projekt in die Repository-Wurzel übernehmen. In Netlify „Import an existing project“ wählen und das richtige Repository verbinden. Bestehenden Projektlink verwenden, falls bereits vorhanden.
 3. Build command: `npm run build`; Publish directory: `dist`; Base directory leer, wenn `netlify.toml` in der Wurzel liegt. Node 24 wird durch die Konfiguration gesetzt. Netlify installiert anhand der Lockdatei. Falls ein übergeordnetes Repository genutzt wird, Base directory auf dessen tatsächlichen Projektunterordner setzen.
-4. Die drei Variablen für **Production** setzen. Falls ein initialer Build bereits lief, nach dem Setzen erneut deployen. Ohne Werte bleibt dieser Stand geschlossen.
+4. Die beiden erforderlichen Variablen für **Production** setzen. Falls ein initialer Build bereits lief, nach dem Setzen erneut deployen. Ohne Werte bleibt dieser Stand geschlossen.
 5. **Split Testing deaktiviert lassen.** Netlify führt bei aktivem Split Testing keine Edge Functions aus. Keine alternative statische Veröffentlichung, externen Weiterleitungsregeln oder zusätzlichen Edge Functions einrichten, die den Schutz umgehen. Automatische Branch Deploys/Deploy Previews zunächst deaktivieren oder ohne Freigabe ihrer Hosts geschlossen lassen.
 6. Deploy-Log prüfen: Es müssen **`00-access` und `10-login`** paketiert sein. Nachverarbeitung muss die Rate-Limit-Regel erfolgreich übernehmen; ungültige Regeln können laut Netlify trotz erfolgreichem Deployment ignoriert werden.
 7. Erst nach den folgenden Prüfungen den Zugang persönlich weitergeben.
@@ -67,13 +78,13 @@ Er erzeugt neben `dist/` das Netlify-Edge-Bundle unter `.netlify/edge-functions-
 4. In Netlify DNS-Prüfung und Ausstellung des HTTPS-Zertifikats abwarten. Falls auch `www.wirtschaftsbund.cloud` verwendet werden soll, diesen Host zusätzlich in Netlify einrichten und ausdrücklich in die Hostliste aufnehmen. Ohne Einrichtung wird `www` nicht vorausgesetzt.
 5. `ACCESS_ALLOWED_HOSTS` um `wirtschaftsbund.cloud` ergänzen und neu deployen. Die Netlify-Hauptadresse kann für spätere Direktaufrufe in der Liste bleiben oder nach Abschluss der Umstellung entfernt werden. Abschließend beide Adressen ohne Cookie und nach Anmeldung prüfen.
 
-Die Domain ist keine Zugangsinformation. Passwort und Sitzungsschlüssel bleiben ausschließlich in Netlifys Umgebungsvariablen. Es wird keine produktive Canonical-URL eingebaut, solange die geplante Domain noch nicht eingerichtet ist.
+Die Domain ist keine Zugangsinformation. Der Sitzungsschlüssel wird ausschließlich als geheime Netlify-Umgebungsvariable gesetzt. Die privaten Zugangsschlüssel bleiben in der getrennt übergebenen Datei; ihre Prüfsummen liegen im Servercode. Es wird keine produktive Canonical-URL eingebaut, solange die geplante Domain noch nicht eingerichtet ist.
 
 ## Produktionsadresse, Vorschauen und ältere Deployments
 
 `ACCESS_ALLOWED_HOSTS` ist eine **exakte Positivliste**. Freigegebene Produktionsdomain und gegebenenfalls die Netlify-Hauptdomain eintragen. Nicht eingetragene Aliase, Branch-Hosts und Deploy-Permalinks erhalten 503; keine Wildcards verwenden. Diese Prüfung gilt auch mit einem gültigen Cookie. HTTPS ist zwingend.
 
-Vorschauen nur bei tatsächlichem Bedarf für ihren Kontext mit **eigenem Passwort, eigenem Schlüssel und dem exakten Vorschauhost** freigeben. Keine Produktivzugangsdaten für unkontrollierte Branches verwenden. Eine neu bekannte Vorschauadresse erfordert gegebenenfalls erst das Eintragen und erneute Deployment. Sitzungscookies gelten nur für ihre jeweilige Origin; zwischen Adressen erneut anmelden.
+Vorschauen nur bei tatsächlichem Bedarf mit **separater Prüfsummenliste, eigenem Sitzungsschlüssel und dem exakten Vorschauhost** freigeben. Eine zusätzliche Variable `ACCESS_PASSWORD` ersetzt die Prüfsummenliste nicht; für isolierte Vorschauen muss diese Liste ebenfalls ausgetauscht werden. Keine Produktivzugangsdaten für unkontrollierte Branches verwenden. Eine neu bekannte Vorschauadresse erfordert gegebenenfalls erst das Eintragen und erneute Deployment. Sitzungscookies gelten nur für ihre jeweilige Origin; zwischen Adressen erneut anmelden.
 
 Ältere Netlify-Deployments behalten ihre damaligen Werte und ihren damaligen Code. Eine aktuelle Host-Positivliste kann einen früheren ungeschützten Deploy nicht nachträglich schützen. Vor dem Start alle alten ungeschützten Deployments und alternativen Veröffentlichungen stilllegen beziehungsweise löschen. Freigegebene alte Vorschauen nach einem Passwortwechsel ebenfalls erneuern oder entfernen. Ein Rollback kann alte Passwörter und alten Schutzcode wiederherstellen; keinen alten Stand ungeprüft zurückrollen.
 
@@ -85,7 +96,7 @@ Abmelden entfernt das Cookie im aktuellen Browser. Bereits kopierte gültige Coo
 
 Netlify begrenzt `POST /anmelden` auf **8 Anfragen je 180 Sekunden pro IP-Adresse und Domain**. Das zählt auch erfolgreiche Anmeldungen; viele Personen an derselben Schul- oder Heim-IP teilen das Limit. Die plattformseitige Durchsetzung kann laut Netlify bis zu zehn Sekunden verzögert greifen. Sie ersetzt ein starkes Passwort nicht und verhindert keine verteilten Angriffe vollständig. Keine eigenen Passwort-/Request-Body-Logs einschalten. Bei 429 später erneut versuchen.
 
-Das gemeinsame Passwort erzwingt weder genau 30–50 Personen noch erlaubt es individuellen Zugangsentzug. Wer das Passwort weitergibt, gibt Zugang weiter. Bei einem späteren Bedarf an individuellen Rechten wäre eine getrennte Kontenlösung erforderlich; sie ist hier nicht eingebaut.
+Die 100 Schlüssel sind wiederverwendbar, keine Einmalcodes und keine personenbezogenen Konten. Wer einen Schlüssel weitergibt, gibt Zugang weiter; eine bestimmte Personenzahl wird dadurch nicht erzwungen. Ein einzelner Schlüssel kann durch Entfernen seiner nummerierten Prüfsumme aus `netlify/lib/access-keys.js` und ein neues Deployment gesperrt werden. Dabei werden sicherheitshalber alle bestehenden Sitzungen ungültig; die übrigen Schlüssel funktionieren weiterhin. Für individuelle Rollen oder Identitätsprüfung wäre eine Kontenlösung erforderlich.
 
 ## Nach dem ersten echten Deployment prüfen
 

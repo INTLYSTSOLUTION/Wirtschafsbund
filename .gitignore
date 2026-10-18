@@ -13,3 +13,7 @@ dist/
 *.key
 
 .openai/
+
+private/
+*Zugangsschluessel*.txt
+*Netlify_Umgebungsvariablen*.env

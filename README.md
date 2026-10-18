@@ -44,7 +44,7 @@ Keine Produktionszugangsdaten, `.env`, Git-Metadaten, Netlify-Kontodaten, Testau
 | `netlify/edge-functions/10-login.js` | Passwort prüfen, Cookie setzen, Netlify-Rate-Limit deklarieren |
 | `netlify/lib/` | Signatur-/Cookie-Prüfung, Sicherheitsheader und Zugangsseite |
 | `src/data/site.js` | Marke und E-Mail |
-| `src/data/legal.js` | Impressumsnamen, Verantwortliche, Postfachkontakt, Dreimonatsfrist; Anschrift noch leer |
+| `src/data/legal.js` | Impressumsnamen, Verantwortliche, Postfachkontakt, Dreimonatsfrist; Anschrift auf Wunsch nicht veröffentlicht |
 | `src/data/projects.js` | Ausschließlich bestätigte, für den Kreis bestimmte Projektdaten |
 | `scripts/pages.mjs` | HTML, Navigation, Texte und Rechtstexte |
 | `src/assets/styles.css` | Bestehende Gestaltung und responsive Layouts |
@@ -67,4 +67,4 @@ Der E-Mail-Link bereitet nur einen kurzen Entwurf an derwirtschaftsbund@gmail.co
 
 ## Vor dem Betrieb
 
-Bestätigt sind die gemeinsame Verantwortung aller drei benannten Personen, Paul Zwicke als Postfachkontakt und eine Dreimonatsfrist für abgeschlossene Vorstellungsanfragen mit den genannten Ausnahmen. Im Impressum stehen auf Wunsch Paul Zwicke und Maximilian Siol; Finn Hülskamp bleibt in den Datenschutzhinweisen genannt. Eine veröffentlichbare Anbieteranschrift fehlt weiterhin. Paul muss die Löschregel im Postfach umsetzen; eine automatische Gmail-Löschung ist nicht eingerichtet. Die geplante Domain `wirtschaftsbund.cloud` und Netlify sind noch einzurichten. Der Passwortschutz hebt Informationspflichten nicht automatisch auf. Öffentliche Quellcode-Repositories und alte Deployments separat absichern. Netlify schützt keine bereits veröffentlichten Kopien oder frühere Git-Stände.
+Bestätigt sind die gemeinsame Verantwortung aller drei benannten Personen, Paul Zwicke als Postfachkontakt und eine Dreimonatsfrist für abgeschlossene Vorstellungsanfragen mit den genannten Ausnahmen. Im Impressum stehen auf Wunsch Paul Zwicke und Maximilian Siol; Finn Hülskamp bleibt in den Datenschutzhinweisen genannt. Auf ausdrücklichen Wunsch wird keine Wohnanschrift veröffentlicht; sichtbare Entwurfshinweise sind entfernt. Eine rechtliche Ausnahme von Anbieterpflichten ist damit nicht bestätigt. Paul muss die Löschregel im Postfach umsetzen; eine automatische Gmail-Löschung ist nicht eingerichtet. Die geplante Domain `wirtschaftsbund.cloud` und Netlify sind noch einzurichten. Der Passwortschutz hebt Informationspflichten nicht automatisch auf. Öffentliche Quellcode-Repositories und alte Deployments separat absichern. Netlify schützt keine bereits veröffentlichten Kopien oder frühere Git-Stände.

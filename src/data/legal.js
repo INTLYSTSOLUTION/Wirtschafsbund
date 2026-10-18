@@ -6,6 +6,7 @@ export const legal = Object.freeze({
   responsibleNames: ['Paul Zwicke', 'Finn Hülskamp', 'Maximilian Siol'],
   emailContact: 'Paul Zwicke',
   completedRequestRetentionMonths: 3,
-  // Eine veröffentlichbare Anbieteranschrift wurde noch nicht genannt.
+  // Auf ausdrücklichen Wunsch keine Wohnanschrift veröffentlichen.
+  // Dies ist keine Feststellung einer gesetzlichen Ausnahme.
   addressLines: [],
 });

@@ -8,10 +8,13 @@ Stand: 18. Oktober 2026. Technisch vorbereitet und lokal geprüft. Kein tatsäch
 - Texte auf einen persönlich zusammengestellten, geschlossenen Hamburger Kreis ausgerichtet. Vorstellung ausschließlich auf persönliche Einladung. Keine öffentliche Selbstregistrierung, erfundene Rechtsform, künstliche Verknappung oder erfundene Projekte/Termine.
 - Zwei serverseitige Netlify Edge Functions ergänzt: vorgeschaltete Zugangskontrolle auf allen Pfaden sowie Passwortprüfung mit plattformseitiger Begrenzung der Anmeldeversuche. Ohne vollständige Konfiguration geschlossen; exakte Hostliste berücksichtigt zusätzliche Deployment-Adressen.
 - Signierte origin-gebundene Sitzung, maximal acht Stunden, Secure/HttpOnly/SameSite=Strict. Abmeldung, Ablauf und Widerruf nach Passwort-/Schlüsselwechsel plus neuem Deployment. Geschützte Seiten, Skripte, PDF-Schriften und PDF-Downloads eingeschlossen. Private `no-store`-Antworten, keine Passwörter im Frontend, kein localStorage-Schalter.
-- Frühere Privatanschrift aus dem aktuellen Website-Entwurf entfernt. Impressum und Datenschutz ausdrücklich als noch zu vervollständigender Entwurf. Passende Hinweise zu Netlify, Zugangscookie, lokaler PDF und Gmail.
+- Frühere Privatanschrift entfernt. Die pauschalen Entwurfshinweise wurden durch konkrete Angaben ersetzt: im Impressum Paul Zwicke und Maximilian Siol; gemeinsam datenschutzverantwortlich weiterhin Paul Zwicke, Finn Hülskamp und Maximilian Siol. Postfachkontakt Paul Zwicke; abgeschlossene Vorstellungsanfragen werden nach der festgelegten Regel nach drei Monaten gelöscht, ausgenommen erforderliche Daten laufender Zusammenarbeit und gesetzliche Aufbewahrung. Die fehlende Anbieteranschrift bleibt ausdrücklich sichtbar.
 - Vollständiges Netlify-Projektpaket ersetzt den früheren statischen Upload. `dist/` enthält ausschließlich auszuliefernde Dateien; Quellen, Tests und Übergabe bleiben außerhalb.
 
 ## Tatsächlich durchgeführte Prüfungen
+
+Nach Ergänzung der bestätigten Angaben wurden Impressum und Datenschutz nochmals ohne Anmeldung auf Mobilgerät und Desktop geprüft: getrennte Namenslisten, Paul als Postfachkontakt, Dreimonatsfrist mit Ausnahmen, sichtbarer Hinweis auf die fehlende Anschrift, funktionierende Links und keine Überläufe oder JavaScript-Fehler. PDF-Erzeugung und Zugangscode wurden dabei nicht verändert; die zuvor geprüfte PDF bleibt byteidentisch. Ein ungünstiger Umbruch der E-Mail-Adresse im mobilen Footer der Rechtstexte wurde korrigiert.
+
 
 | Bereich | Ergebnis und Umfang |
 | --- | --- |
@@ -28,13 +31,21 @@ Stand: 18. Oktober 2026. Technisch vorbereitet und lokal geprüft. Kein tatsäch
 
 Testskripte liegen in `tests/`; synthetische Ergebnisse lokal unter `../tmp/v2/` und `../tmp/netlify/`. Tests werden nicht veröffentlicht. Browsergrößen sind Emulationen, keine Prüfung auf physischen Mobilgeräten. OpenSSL, Poppler und Python/pypdf dienten ausschließlich der lokalen Prüfung.
 
-## Was vor dem Betrieb noch festzulegen ist
+## Bestätigte Angaben und verbleibende Schritte
 
-1. **Netlify-Konto und echte Adressen:** Projekt verknüpfen, drei Umgebungsvariablen setzen, Split Testing ausgeschaltet lassen, vollständiges Deployment durchführen. Alle aktiven Adressen und mögliche alte ungeschützte Deployments prüfen. Die Anleitung beschreibt Git und CLI; ein statischer Upload genügt nicht.
-2. **Anbieter und Anschrift:** Tatsächliche Anbieterstellung der im Entwurf genannten Personen bestätigen. Ob insbesondere § 5 DDG oder § 18 MStV greift, hängt von der tatsächlichen Nutzung ab. Eine gegebenenfalls erforderliche geeignete Anschrift fehlt ausdrücklich. Begrenzter Kreis und Passwort sind keine automatische Befreiung. Keine Ersatzadresse erfunden, keine pauschale Zusage von Rechtssicherheit.
-3. **Datenschutz-Verantwortung:** Tatsächliche Verantwortliche, Aufgaben und gegebenenfalls Art.-26-Regelung bestätigen; erforderliche Kontaktdaten vervollständigen. Allein eine Zugangsbeschränkung begründet keine Haushaltsausnahme.
-4. **Netlify und Gmail:** Anwendbare Konten/Verträge, erforderliche Auftragsverarbeitung, internationale Übermittlungen, konkrete Protokollierung und Speicherfristen prüfen. Gmail-Zugriffsberechtigte und zweckbezogene Aufbewahrung/Löschung von E-Mails, Anhängen und Kopien festlegen; passende Grundlage für den tatsächlichen Aufnahmeprozess bestätigen. Gegebenenfalls erforderliche Mitwirkung Sorgeberechtigter klären.
-5. **Öffentliche Kopien:** Das bisherige GitHub-Repository ist öffentlich. Ein Netlify-Passwort schützt keine dort lesbaren Quellen oder Dateien. Vor internen Inhalten Zugriff auf das Repository einschränken. Entfernen einer Anschrift im aktuellen Commit entfernt sie nicht rückwirkend aus Git-Historie, früheren ZIPs, Downloads oder fremden Kopien. Repository-Sichtbarkeit und Historie wurden nicht automatisch umgeschrieben.
+Vom Auftraggeber am 18. Oktober 2026 bestätigt:
+
+- Alle drei bisher genannten Personen bleiben gemeinsam verantwortlich. Finn Hülskamp soll aus dem Impressum entfernt werden. Entsprechend sind die Namenslisten getrennt; er bleibt in der Datenschutzerklärung genannt. Die Entfernung aus dem Impressum ändert keine tatsächliche Verantwortung.
+- Paul Zwicke hat Zugriff auf das gemeinsame Gmail-Postfach und ist dort Ansprechpartner.
+- Abgeschlossene Vorstellungsanfragen sollen drei Monate nach Abschluss gelöscht werden. Erforderliche Daten für laufende Zusammenarbeit und gesetzliche Aufbewahrung sind ausgenommen.
+- Als Domain ist `wirtschaftsbund.cloud` vorgesehen. Ein Netlify-Projekt besteht noch nicht. Eigentum/Verfügbarkeit der Domain, DNS und HTTPS wurden nicht eingerichtet oder bestätigt.
+
+Noch konkret erforderlich:
+
+1. **Anbieteranschrift:** Eine vollständige, zur Veröffentlichung bestimmte Anschrift wurde noch nicht genannt. Die frühere Privatanschrift bleibt entfernt. Die Anbieterinformationen sind deshalb nicht als vollständig gekennzeichnet. Die tatsächliche Anbieterzuordnung muss trotz der gewünschten Namensdarstellung zutreffen; falls eine Person rechtlich als Anbieter zu nennen ist, beseitigt das Streichen ihres Namens diese Pflicht nicht. Eine abschließende rechtliche Freigabe wird nicht behauptet.
+2. **Betriebliche Umsetzung:** Paul setzt die festgelegte Löschregel für Postfach, Anhänge und vorhandene Kopien tatsächlich um. Es gibt keine Gmail-Anbindung und keine eingerichtete automatische Löschung. Die Aufgaben der gemeinsam Verantwortlichen und eine erforderliche Art.-26-Regelung sowie gegebenenfalls die Mitwirkung Sorgeberechtigter müssen organisatorisch umgesetzt sein; eine bereits unterschriebene Vereinbarung wird nicht behauptet.
+3. **Netlify-Einrichtung:** Projekt anlegen, vollständiges Repository verbinden, Passwort/Schlüssel/Hostliste setzen, die geplante Domain verbinden und HTTPS aktivieren. Danach neu deployen und die Live-Prüfung gemäß [HOSTING.md](HOSTING.md) durchführen. Netlify nennt die Auftragsverarbeitungsvereinbarung als Bestandteil seiner Nutzungsbedingungen; die tatsächlich verwendeten Konto- und Vertragsbedingungen einschließlich Gmail sind beim Einrichten zu beachten. Es wurde kein Hostingvertrag im Namen des Nutzers abgeschlossen.
+4. **Öffentliche Kopien:** Das GitHub-Repository bleibt öffentlich. Netlify schützt keine Kopien in GitHub oder früheren Veröffentlichungen. Aktuelle Dateien enthalten die entfernte Anschrift nicht, ältere Git-Stände können sie weiter enthalten. Sichtbarkeit und Historie wurden nicht automatisch geändert.
 
 ## Grenzen der Prüfung
 
@@ -49,5 +60,7 @@ Ein gemeinsam geteiltes Passwort begrenzt nicht technisch auf 30–50 Personen u
 - [§ 25 TDDDG](https://www.gesetze-im-internet.de/ttdsg/__25.html): notwendiger Zugriff auf Endgeräte.
 - [Netlify Privacy](https://www.netlify.com/privacy/) und [Trust Center](https://www.netlify.com/trust-center/): konkrete Hosting-/Vertragsprüfung.
 - [Google-Datenschutz](https://policies.google.com/privacy?hl=de), [Nutzungsbedingungen](https://policies.google.com/terms?hl=de), [Übermittlungsmechanismen](https://policies.google.com/privacy/frameworks?hl=de).
+
+- [Netlify: Einbeziehung des DPA](https://www.netlify.com/gdpr-ccpa/).
 
 Technische Quellen und genaue Veröffentlichungsschritte stehen in [HOSTING.md](HOSTING.md).

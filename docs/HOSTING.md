@@ -1,6 +1,6 @@
 # Netlify: geschützten Wirtschaftsbund veröffentlichen
 
-Stand: 18. Oktober 2026. Vorbereitet und lokal geprüft; noch kein Netlify-Projekt eingerichtet oder live veröffentlicht. Rechtliche und tatsächliche Angaben bleiben vor dem Betrieb zu klären, siehe [Prüfbericht](PRUEFBERICHT.md).
+Stand: 18. Oktober 2026. Vorbereitet und lokal geprüft. Die geplante Hauptdomain ist `wirtschaftsbund.cloud`; laut Auftraggeber ist noch kein Netlify-Projekt angelegt. Registrierung, Domainverbindung und HTTPS sind noch nicht erfolgt. Bestätigte Betreiber-/Postfachangaben und verbleibende Punkte stehen im [Prüfbericht](PRUEFBERICHT.md).
 
 ## Das richtige Paket
 
@@ -16,7 +16,7 @@ Im Netlify-Projekt unter **Project configuration → Environment variables** anl
 | --- | --- |
 | `ACCESS_PASSWORD` | Persönlich weitergegebenes, zufällig erzeugtes Passwort. Mindestens 20, höchstens 256 Zeichen; empfohlen mindestens 32 zufällige Bytes als Base64url-Zeichenfolge aus einem Passwortmanager. |
 | `ACCESS_SESSION_SECRET` | Separater, unabhängiger zufälliger Schlüssel: mindestens 43, höchstens 256 Zeichen; empfohlen mindestens 32 zufällige Bytes als Base64url. Niemals an Besucher weitergeben. |
-| `ACCESS_ALLOWED_HOSTS` | Exakte erlaubte Hostnamen, bei mehreren mit Komma getrennt. Ohne `https://`, Pfad oder Sternchen. Beispielsyntax: `mein-projekt.netlify.app,kreis.example.org` – durch die tatsächlichen Adressen ersetzen. |
+| `ACCESS_ALLOWED_HOSTS` | Für die geplante Hauptdomain: `wirtschaftsbund.cloud`. Ohne `https://`, Pfad oder Sternchen. Für die Prüfung vor der Domainverbindung die tatsächlich zugewiesene `*.netlify.app`-Hauptadresse zusätzlich mit Komma eintragen. Keine Adresse erraten und keinen Stern als Wert verwenden. |
 
 Fehlt ein Wert, ist er zu kurz oder passt der aufgerufene Host nicht, antwortet der geschützte Bereich mit **503**. Es gibt kein Standardpasswort. Impressum, Datenschutz, Logo, CSS und die nötigen Webschriften bleiben öffentlich erreichbar.
 
@@ -58,6 +58,16 @@ npx netlify build --offline
 ```
 
 Er erzeugt neben `dist/` das Netlify-Edge-Bundle unter `.netlify/edge-functions-dist/`. Dieses generierte Verzeichnis gehört nicht ins Git oder Übergabe-ZIP; Netlify erzeugt es für jedes Deployment neu.
+
+## Geplante Domain wirtschaftsbund.cloud verbinden
+
+1. Das Netlify-Projekt über das vollständige GitHub-Repository anlegen. Bis zur Domainverbindung kann dessen tatsächlich zugewiesene Netlify-Hauptadresse verwendet werden; diese muss in `ACCESS_ALLOWED_HOSTS` stehen.
+2. Sicherstellen, dass ihr `wirtschaftsbund.cloud` registriert habt und auf deren DNS-Verwaltung zugreifen könnt. Die Domain wurde im Rahmen dieser Arbeit weder gekauft noch als verfügbar oder bereits im Besitz geprüft.
+3. In Netlify unter **Domain management → Production domains** `wirtschaftsbund.cloud` hinzufügen und als primäre Domain auswählen. Anschließend beim Domainanbieter genau die DNS-Einträge setzen, die Netlify für dieses Projekt anzeigt. Keine festen IP-Adressen aus fremden Beispielen übernehmen.
+4. In Netlify DNS-Prüfung und Ausstellung des HTTPS-Zertifikats abwarten. Falls auch `www.wirtschaftsbund.cloud` verwendet werden soll, diesen Host zusätzlich in Netlify einrichten und ausdrücklich in die Hostliste aufnehmen. Ohne Einrichtung wird `www` nicht vorausgesetzt.
+5. `ACCESS_ALLOWED_HOSTS` um `wirtschaftsbund.cloud` ergänzen und neu deployen. Die Netlify-Hauptadresse kann für spätere Direktaufrufe in der Liste bleiben oder nach Abschluss der Umstellung entfernt werden. Abschließend beide Adressen ohne Cookie und nach Anmeldung prüfen.
+
+Die Domain ist keine Zugangsinformation. Passwort und Sitzungsschlüssel bleiben ausschließlich in Netlifys Umgebungsvariablen. Es wird keine produktive Canonical-URL eingebaut, solange die geplante Domain noch nicht eingerichtet ist.
 
 ## Produktionsadresse, Vorschauen und ältere Deployments
 
@@ -115,6 +125,7 @@ Geprüft am 18. Oktober 2026:
 - [Edge-Umgebungsvariablen und erneutes Deployment](https://docs.netlify.com/build/edge-functions/environment-variables/)
 - [Rate Limiting, kostenlose Regeln und Grenzen](https://docs.netlify.com/manage/security/secure-access-to-sites/rate-limiting/)
 - [Edge-Limits einschließlich Split Testing](https://docs.netlify.com/build/edge-functions/limits/)
+- [Eigene Domain zuweisen](https://docs.netlify.com/manage/domains/manage-domains/assign-a-domain-to-your-site-app/)
 - [CLI](https://docs.netlify.com/api-and-cli-guides/cli-guides/get-started-with-cli/) und [lokales HTTPS](https://docs.netlify.com/api-and-cli-guides/cli-guides/local-development/)
 
 Die kostenlose Einstiegslösung benötigt keinen externen PDF-Dienst und keine Datenbank. Aktuelle Netlify-Kontingente und den tatsächlichen Tarif beim Einrichten prüfen; dauerhafte Kostenfreiheit wird nicht zugesichert.

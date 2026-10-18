@@ -1,38 +1,13 @@
-# Öffentliche Projekte pflegen
+# Inhalte im geschlossenen Kreis pflegen
 
-Zurzeit sind keine konkreten Projektdaten zur Veröffentlichung bestätigt. Die Projektseite ist trotzdem vollständig: Sie beschreibt Arbeitsfelder, Zusammenarbeit und einen möglichen Entwicklungsweg. Die Bürger-Umfrage-App wird nicht als laufendes Projekt dargestellt.
+Es liegen keine bestätigten konkreten Projekte oder Termine vor. Die Projektseite beschreibt die gemeinsame Arbeitsweise, ohne Projekte, Erfolge, Partner oder Nutzerzahlen zu erfinden. Zusammenkünfte werden allgemein als interne Abstimmung erwähnt. Kein neues Kalender- oder Registrierungssystem.
 
-## Ein bestätigtes Projekt ergänzen
+Bestätigte Projekte werden in `src/data/projects.js` gepflegt. `publishedProjects` ist historisch benannt; die Ausgabe erfolgt im geschützten Bereich. Jeder Eintrag benötigt `confirmed: true` sowie `name`, `description`, `problem`, `approach`, `status`, `collaboration`. Ein echter HTTPS-Ergebnislink in `url` ist freiwillig. Ohne bestätigte Angaben bleibt die Liste leer. Keine Platzhalter veröffentlichen.
 
-1. Namen, Kurzbeschreibung, Problem, öffentlich beschreibbaren Lösungsansatz, tatsächlichen Entwicklungsstand und öffentliche Form der Zusammenarbeit bestätigen lassen. Ein Ergebnislink ist freiwillig und muss echt und erreichbar sein.
-2. Erst die **freigegebene Fassung** in `src/data/projects.js` eintragen. Die Datei ist eine JavaScript-Liste; jedes Projekt hat dieses Schema:
+Inhalte nur dann eintragen, wenn sie für den zugangsberechtigten Kreis bestimmt und sachlich bestätigt sind. Ein öffentliches GitHub-Repository macht trotzdem die Quellen einsehbar: vor internen Projektangaben Repository-Zugriff klären. Vertrauliche Notizen, persönliche Kontaktdaten und Finanzen bleiben außerhalb des Projekts. Die Website braucht sie nicht.
 
-```js
-export const publishedProjects = [
-  {
-    confirmed: true,
-    name: 'Hier den bestätigten Projektnamen eintragen',
-    description: 'Die freigegebene sachliche Kurzbeschreibung.',
-    problem: 'Das tatsächlich bearbeitete Problem.',
-    approach: 'Der öffentlich beschreibbare Ansatz.',
-    status: 'Ausschließlich den ausdrücklich bestätigten Stand eintragen.',
-    collaboration: 'Die bestätigte öffentliche Form der Zusammenarbeit.',
-    // url: 'https://echte-veroeffentlichte-adresse',
-  },
-];
-```
+Nach Änderungen `npm run build`, passende Tests und `npm run package` ausführen. Die [Netlify-Anleitung](HOSTING.md) gilt auch für Updates: vollständiges Deployment mit beiden Edge Functions. Keine Einzeldateien über einen statischen Upload veröffentlichen. Frühere Deployments behalten alte Inhalte und ihre damaligen Zugriffseinstellungen; nötigenfalls separat entfernen.
 
-Das Beispiel ist nur ein Eingabeschema, kein veröffentlichbares Projekt. Platzhalter vor einem Build vollständig durch bestätigte Inhalte ersetzen. Ohne konkretes Projekt bleibt die Liste leer (`[]`). Der Build lehnt fehlende Pflichtangaben, unbestätigte Einträge und Ergebnislinks ohne HTTPS ab; die sachliche Richtigkeit kann er nicht prüfen.
+Name und E-Mail werden in `src/data/site.js` gepflegt. Anbieterzuordnung steht in `src/data/legal.js`, Rechtstexte in `scripts/pages.mjs`. `releaseConfirmed` ist nur eine redaktionelle Markierung und schaltet den Zugang nicht frei. Keine Anschrift erfinden und Entwurfshinweise erst nach tatsächlicher Klärung entfernen. Alle Seiten bleiben `noindex`; das ist ergänzend zum serverseitigen Zugangsschutz, kein Ersatz dafür.
 
-3. `npm run build`, dann `npm run dev` ausführen. `projekte.html` auf Desktop und Mobilansicht kontrollieren; Links tatsächlich öffnen. Metadaten, Absatzlängen und Umbrüche mitprüfen.
-4. Nach Änderungen `npm test` und die Browser-/Layoutprüfungen ausführen. `npm run package` erstellt einen frischen Uploadordner und die ZIPs. Nach autorisierter Veröffentlichung die Seite am tatsächlichen Hoster nachprüfen.
-
-Projekte werden als großzügige Textabschnitte mit Trennlinien ausgegeben. Bei später ausreichend bestätigtem Material kann in `scripts/pages.mjs` eine eigene Seite ergänzt werden; die Links und Sitemap werden anschließend ebenfalls angepasst und getestet. Aktuell werden keine leeren Projektunterseiten erzeugt.
-
-## Was nicht in die öffentlichen Dateien gehört
-
-Unbestätigte Ideenlisten, interne Rollen, Finanzverteilungen, private Kontakte und unveröffentlichte Projektnotizen außerhalb von `src/assets/`, `src/data/projects.js`, `dist/` und dem Uploadordner aufbewahren. Ein ausgeblendeter Browserdatensatz wäre öffentlich abrufbar. Der Build verarbeitet freigegebene Projekttexte direkt zu HTML und kopiert die Datendatei selbst nicht in den Upload.
-
-Eine Rücknahme erfolgt durch Entfernen des vollständigen Eintrags und einen erneuten Build. Nach einem Update sicherstellen, dass alte Projektunterseiten beim Hoster ebenfalls entfernt wurden.
-
-Marke und E-Mail werden zentral in `src/data/site.js` gepflegt. Danach immer neu bauen, damit HTML, Browserkonfiguration und PDF-Briefkopf zusammenpassen. Rechtliche Änderungen werden separat in `src/data/legal.js` und den Rechtstexten in `scripts/pages.mjs` gepflegt.
+Passwort und Sitzungsschlüssel ausschließlich in Netlify setzen, danach neu deployen. Die Zugangskontrolle, Hostliste, `onError: fail`, Rate-Limit und `no-store`-Header bei Pflege nicht entfernen. Keine Browser-Passwortprüfung als Ersatz einbauen.

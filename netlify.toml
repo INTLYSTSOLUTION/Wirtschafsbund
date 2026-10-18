@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[build.processing]
+  skip_processing = true
+
+# Edge Functions are discovered in netlify/edge-functions.
+# Their literal config exports bind 00-access to /* and 10-login to /anmelden.
+# Keep both handlers in every deploy context. No static-only drag-and-drop deploy.
+# ACCESS_PASSWORD, ACCESS_SESSION_SECRET and ACCESS_ALLOWED_HOSTS belong in
+# Netlify environment settings (Functions scope), NEVER in this file.
+
+[dev]
+  command = "node scripts/serve.mjs --port 4176"
+  targetPort = 4176
+  port = 8888
+  framework = "#custom"
+  autoLaunch = false

@@ -4,7 +4,6 @@ import * as PDFLib from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { pages } from './pages.mjs';
 import { site } from '../src/data/site.js';
-import { legal } from '../src/data/legal.js';
 import { createApplicationPdf } from '../src/assets/pdf.js';
 const root=path.resolve('dist');
 await fs.rm(root,{recursive:true,force:true});await fs.mkdir(root,{recursive:true});
@@ -15,8 +14,7 @@ const assets={};for(const[key,file]of Object.entries({sans:'fonts/Inter-Regular.
 const bytes=await createApplicationPdf({},assets,{PDFLib,fontkit},site);
 await fs.writeFile(path.join(root,'assets/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf'),bytes);
 await fs.mkdir('../output/pdf',{recursive:true});await fs.writeFile('../output/pdf/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf',bytes);
-await fs.writeFile(path.join(root,'robots.txt'),legal.releaseConfirmed?'User-agent: *\nAllow: /\n':'User-agent: *\nDisallow: /\n');
-const csp="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests";
-await fs.writeFile(path.join(root,'_headers'),`/*\n  Content-Security-Policy: ${csp}\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()\n`);
-if(site.publicBaseUrl&&legal.releaseConfirmed){const base=site.publicBaseUrl.replace(/\/$/,'');await fs.writeFile(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${Object.keys(pages).filter(p=>!['404.html','impressum.html','datenschutz.html'].includes(p)).map(p=>`<url><loc>${base}/${p}</loc></url>`).join('')}</urlset>`);}
+await fs.writeFile(path.join(root,'robots.txt'),'User-agent: *\nDisallow: /\n');
+const csp="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests";
+await fs.writeFile(path.join(root,'_headers'),`/*\n  Content-Security-Policy: ${csp}\n  Cache-Control: private, no-store, max-age=0\n  CDN-Cache-Control: no-store\n  Netlify-CDN-Cache-Control: no-store\n  X-Robots-Tag: noindex, nofollow, noarchive\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()\n`);
 console.log(`Statischer Build: ${Object.keys(pages).length} Seiten; ausfüllbare PDF ${bytes.length} Bytes. Keine Veröffentlichung.`);

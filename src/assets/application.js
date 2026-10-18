@@ -67,7 +67,7 @@ function prepareEmail(){
   if(hasEmail()){
     $('prepare-email').href=mailtoFor(currentData.name);
     $('prepare-email').hidden=false;
-    
+
     $('copy-email').disabled=false;
   }
 }

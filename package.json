@@ -3,13 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/serve.mjs",
+    "dev": "netlify dev",
     "build": "node scripts/build.mjs",
-    "test": "node --test tests/pdf.test.mjs",
+    "test": "node --test tests/pdf.test.mjs tests/access.test.mjs",
     "package": "npm run build && python3 scripts/package.py",
     "test:browser": "node tests/browser.mjs",
     "test:visual": "node tests/visual.mjs",
-    "test:accessibility": "node tests/accessibility.mjs"
+    "test:accessibility": "node tests/accessibility.mjs",
+    "dev:static": "node scripts/serve.mjs",
+    "test:access": "node --test tests/access.test.mjs",
+    "test:netlify": "node tests/netlify-browser.mjs",
+    "test:netlify:cli": "node tests/netlify-cli.mjs"
   },
   "dependencies": {
     "pdf-lib": "1.17.1",
@@ -18,6 +22,10 @@
     "@fontsource/cormorant-garamond": "5.2.8"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1"
+    "@playwright/test": "1.56.1",
+    "netlify-cli": "27.13.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

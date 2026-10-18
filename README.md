@@ -1,70 +1,70 @@
 # Der Wirtschaftsbund
 
-Eigenständige statische Website für den Hamburger Schüler-Wirtschaftsbund. Sieben HTML-Seiten, Original-Logo, lokale Schriften und vollständig lokale PDF-Erstellung. Diese Überarbeitung wurde nicht live veröffentlicht.
+Website für den persönlich zusammengestellten Hamburger Schüler-Wirtschaftsbund. Original-Pferdelogo, Marineblau, lokale Schriften, sieben HTML-Seiten und lokale, kostenfreie PDF-Erstellung bleiben erhalten. Zugang nur nach persönlicher Weitergabe eines gemeinsamen Passworts. Keine öffentliche Selbstregistrierung.
 
-Der fertige statische Stand liegt in [`dist/`](dist/); das direkt hochladbare Paket in [`downloads/Der_Wirtschaftsbund_Upload.zip`](downloads/Der_Wirtschaftsbund_Upload.zip). Vor einer öffentlichen Bereitstellung die offenen Angaben im [Prüfbericht](docs/PRUEFBERICHT.md) klären.
+**Netlify-Version:** Der serverseitige Schutz besteht aus zwei Edge Functions. `dist/` allein ist keine geschützte Website. Veröffentlichung ausschließlich über Git-Anbindung oder Netlify CLI aus dem vollständigen Projekt; siehe [Netlify-Anleitung](docs/HOSTING.md). Noch kein tatsächliches Netlify-Deployment.
 
-## Vorschau und Build
+## Start und Prüfung
 
-Benötigt wird Node.js mit npm; geprüft mit Node 24.18.0. Für das ZIP-Paket außerdem Python 3.
+Node mindestens 22.13, empfohlen 24; für das Paket Python 3, für die Browserprüfungen OpenSSL und die Playwright-Browser.
 
 ```sh
 npm ci
 npm run build
-npm run dev
-```
-
-Vorschau: http://127.0.0.1:4173/ . Nicht über `file://` starten: JavaScript-Module benötigen einen lokalen HTTP-Server. Der Vorschau-Server verarbeitet keine Formulare und protokolliert keine Anfragen.
-
-```sh
+npm test
+npx playwright install chromium webkit
+npm run test:netlify
+npm run test:netlify:cli
+npm run test:browser
+npm run test:visual
+npm run test:accessibility
+npx netlify build --offline
 npm run package
 ```
 
-Erzeugt neben dem Projektverzeichnis unter `../output/` den Uploadordner, dessen ZIP, das Quellcode-ZIP, die PDF und die Anleitungen. Nur `der-wirtschaftsbund-upload/` beziehungsweise dessen ZIP ist zur späteren öffentlichen Auslieferung bestimmt. Der Quellcode und die Dokumentation bleiben separat.
+Tests verwenden zufällige temporäre Zugangsdaten und synthetische Formulardaten. Sie senden keine E-Mails. Testausgaben liegen unter `../tmp/`, nie in `dist/`. `npm run dev:static` ist eine lokale, ungeschützte Gestaltungsvorschau auf 127.0.0.1:4173. Netlify Dev benötigt für den Schutz HTTPS und lokale Testkonfiguration; Anleitung siehe Hostingdokument.
+
+## Übergabe
+
+`npm run package` erzeugt unter `../output/`:
+
+- `Der_Wirtschaftsbund_Netlify_Projekt.zip`: vollständiges deploybares Projekt mit Quellen, Lockdatei, Tests, Anleitung, `netlify.toml`, Edge Functions und fertigem `dist/`.
+- `der-wirtschaftsbund-netlify/`: derselbe Projektstand als Ordner; `dist/` darin ist der Veröffentlichungsordner.
+- `NETLIFY_SHA256.json`: Dateiprüfsummen; `PAKETNACHWEIS.json`: Struktur- und Paketnachweis.
+- `pdf/Wirtschaftsbund_Aufnahmeanfrage_Vorlage.pdf`: ausfüllbare Vorlage.
+
+Keine Produktionszugangsdaten, `.env`, Git-Metadaten, Netlify-Kontodaten, Testausgaben oder `node_modules` im Paket. Der Paketgenerator ersetzt die alten statischen Upload-/Quellcodepakete dieser Übergabe. Sie dürfen nicht als Netlify-Zugangsschutz verwendet werden.
 
 ## Pflege
 
 | Datei | Aufgabe |
 | --- | --- |
-| `src/data/site.js` | Name, ergänzende Bezeichnung, E-Mail, öffentliche Basis-URL |
-| `src/data/legal.js` | Angegebene Anbieterdaten und Freigabestatus |
-| `src/data/projects.js` | Ausschließlich ausdrücklich freigegebene Projektdaten |
-| `scripts/pages.mjs` | Gemeinsame HTML-Vorlagen, Navigation, Seitentexte und Rechtstexte |
-| `src/assets/styles.css` | Gestaltung, lokale Webschriften, responsive Layouts |
-| `src/assets/fields.js` | Formularschema und Längenbegrenzungen |
-| `src/assets/application.js` | Prüfen, Bearbeiten, Download und Kopierersatz |
-| `src/assets/pdf.js` | Vorlage und ausgefüllte PDF mit Fortsetzungsseiten |
-| `scripts/build.mjs` | Sauberer statischer Export nach `dist/` |
+| `netlify.toml` | Build, Veröffentlichungsordner, lokale Netlify-Konfiguration |
+| `netlify/edge-functions/00-access.js` | Alle Pfade vor Auslieferung schützen, öffentliches Minimum, Abmeldung |
+| `netlify/edge-functions/10-login.js` | Passwort prüfen, Cookie setzen, Netlify-Rate-Limit deklarieren |
+| `netlify/lib/` | Signatur-/Cookie-Prüfung, Sicherheitsheader und Zugangsseite |
+| `src/data/site.js` | Marke und E-Mail |
+| `src/data/legal.js` | Noch zu bestätigende Anbieterzuordnung, keine Privatanschrift |
+| `src/data/projects.js` | Ausschließlich bestätigte, für den Kreis bestimmte Projektdaten |
+| `scripts/pages.mjs` | HTML, Navigation, Texte und Rechtstexte |
+| `src/assets/styles.css` | Bestehende Gestaltung und responsive Layouts |
+| `src/assets/application.js`, `fields.js`, `pdf.js` | Lokale Vorstellung, Validierung, PDF und Kopierersatz |
+| `scripts/build.mjs` | Bereinigter Export nach `dist/` |
 
-`dist/` wird beim Build vollständig ersetzt. Änderungen deshalb immer in den Quellen durchführen. Die ursprüngliche Sites-Konfiguration im lokalen Checkout wird nicht in das Quellcode- oder Uploadpaket übernommen; diese Aufgabe umfasst keinen Deploy.
+`dist/` wird beim Build vollständig ersetzt. Quellen ändern, dann neu bauen. Keine Änderungen nur in generierten HTML-Dateien. Weitere Hinweise: [Projektpflege](docs/PROJEKTPFLEGE.md), [Prüfbericht und offene Angaben](docs/PRUEFBERICHT.md).
 
-Weitere Anleitungen: [Hosting](docs/HOSTING.md), [Projektpflege](docs/PROJEKTPFLEGE.md), [Prüfbericht und offene Angaben](docs/PRUEFBERICHT.md).
+## Zugang und PDF
 
-## Formular und PDF
+Netlify-Variablen: `ACCESS_PASSWORD`, `ACCESS_SESSION_SECRET`, `ACCESS_ALLOWED_HOSTS`. Ohne vollständige Konfiguration bleibt der Bereich geschlossen. Maximal acht Stunden gültiges signiertes, origin-gebundenes Secure-/HttpOnly-/SameSite-Strict-Cookie; Passwort- oder Schlüsselwechsel plus neues Deployment widerruft alte Sitzungen. Alle geschützten Antworten `no-store`. Keine Frontend-Zugangsdaten oder Web-Storage-Schalter.
 
-Fünf Pflichtfelder, vier freiwillige Angaben. Die Antworten bleiben in DOM und JavaScript-Arbeitsspeicher. Es gibt keinen Formularserver, Analytics, Web Storage, Cookies oder externen PDF-Dienst. Eingaben werden in der Vorschau als Text ausgegeben. Bibliotheken und PDF-Schriften werden erst beim angeforderten Download lokal nachgeladen. Ein Neuladen kann Eingaben verlieren; kein Entwurf wird dauerhaft gespeichert.
+Fünf Pflichtfelder, vier freiwillige Angaben. Antworten bleiben im Arbeitsspeicher des Browsers. Keine Formularübermittlung, Tracker oder externen PDF-Dienste. Leere Vorlage: drei A4-Seiten mit neun echten AcroForm-Feldern. Bei langen Online-Antworten erzeugt der Browser zusätzliche Seiten und editierbare Fortsetzungsfelder; 10,5-pt-Schrift bleibt erhalten. Die feste leere PDF wächst beim nachträglichen Ausfüllen in einem PDF-Programm nicht automatisch. Vor dem Versand gespeicherte PDFs wieder öffnen und vollständig prüfen.
 
-Die leere Vorlage umfasst drei A4-Seiten mit neun echten AcroForm-Feldern. Ihre Feldflächen sind fest. Für sehr lange Antworten ist das Online-Formular vorgesehen: Es fügt Seiten hinzu und speichert die vollständige Antwort bei Bedarf in nummerierten editierbaren Fortsetzungsfeldern (`project`, `project__2` usw.). Die Schrift bleibt 10,5 pt. Nicht unterstützte Zeichen führen zu einer verständlichen Fehlermeldung, nicht zu stillen Auslassungen.
+Der E-Mail-Link bereitet nur einen kurzen Entwurf an derwirtschaftsbund@gmail.com vor. PDF selbst anhängen, Versand selbst auslösen. Keine Behauptung „versendet“; kopierbare Adresse und manuelle Kopiermöglichkeit vorhanden.
 
-PDF-Programme können beim nachträglichen Ändern eigene Umbrüche erzeugen. Die gespeicherte Datei vor Versand erneut öffnen und auf vollständige Sichtbarkeit prüfen. Automatisches Seitenwachstum erfolgt im Website-Generator, nicht beim Ausfüllen der festen PDF-Vorlage.
+## Assets
 
-Der E-Mail-Link enthält nur Empfänger, Betreff und einen kurzen Begleittext mit Namen. Besucher hängen die PDF selbst an und lösen den Versand selbst aus. Die Website behauptet weder Versand noch Eingang.
+`src/assets/pferd-original.jpg` ist byteidentisch mit dem bereitgestellten Original. Marineblau `#071436`, Cormorant Garamond 600 und Inter 400/500 bleiben erhalten. Webschriften und PDF-Schriften werden lokal ausgeliefert, PDF-TTFs vollständig eingebettet. Lokale Bibliotheken: pdf-lib 1.17.1 und @pdf-lib/fontkit 1.1.1. Lizenztexte liegen in `src/assets/licenses/`.
 
-## Lokale Assets und Lizenzen
+## Vor dem Betrieb
 
-Das originale JPEG liegt unverändert in `src/assets/pferd-original.jpg`; die Darstellung maskiert lediglich ungenutzte Ränder. Marineblau `#071436` entspricht dem häufigsten Hintergrundwert des Originals. Keine Neuzeichnung oder umbenannte SVG-Datei.
-
-Cormorant Garamond 600 und Inter 400/500 werden lokal unter SIL OFL ausgeliefert. Die statischen PDF-TTFs wurden aus den enthaltenen variablen Ausgangsfonts instanziiert. Für zuverlässige PDF-Darstellung werden die TTFs vollständig eingebettet und optionale Ligaturen deaktiviert. pdf-lib 1.17.1 und @pdf-lib/fontkit 1.1.1 werden lokal unter MIT verwendet. Lizenztexte liegen in `src/assets/licenses/` und bleiben im Upload enthalten.
-
-## Prüfungen wiederholen
-
-Bei laufendem `npm run dev`:
-
-```sh
-npm test
-npm run test:browser
-npm run test:visual
-npm run test:accessibility
-```
-
-Für die Browsertests bei Bedarf einmal `npx playwright install chromium webkit` ausführen. Für die unabhängige PDF-Feldprüfung Python mit `pypdf` installieren und `python3 tests/verify_pdf.py` verwenden. Poppler (`pdftoppm`) rendert PDFs zur Sichtprüfung. Diese Werkzeuge werden ausschließlich zur Entwicklung benötigt, nicht für Websitebesucher. Ausschließlich synthetische Testdaten; kein Testversand.
+Rechtliche Anbieterstellung, gegebenenfalls erforderliche geeignete Anschrift, Verantwortlichkeiten, Netlify-Vertrag und tatsächliche Gmail-Aufbewahrung klären. Die frühere Privatanschrift ist aus dem aktuellen Entwurf entfernt; der Passwortschutz hebt Informationspflichten nicht automatisch auf. Öffentliche Quellcode-Repositories und alte Deployments separat absichern. Netlify schützt keine bereits veröffentlichten Kopien oder frühere Git-Stände.

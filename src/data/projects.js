@@ -1,3 +1,3 @@
-// Ausschließlich ausdrücklich zur Veröffentlichung freigegebene Informationen.
-// Keine privaten Entwürfe, Ideenlisten oder internen Projektstände hier speichern.
+// Ausschließlich bestätigte und für den geschlossenen Kreis bestimmte Projekte.
+// Keine vertraulichen Notizen oder personenbezogenen Rohdaten hier ablegen.
 export const publishedProjects = [];

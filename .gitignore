@@ -4,3 +4,12 @@ node_modules/
 tmp/
 test-results/
 .DS_Store
+dist/
+.netlify/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+.openai/

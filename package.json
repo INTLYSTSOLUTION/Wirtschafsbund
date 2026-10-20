@@ -13,7 +13,8 @@
     "dev:static": "node scripts/serve.mjs",
     "test:access": "node --test tests/access.test.mjs",
     "test:netlify": "node tests/netlify-browser.mjs",
-    "test:netlify:cli": "node tests/netlify-cli.mjs"
+    "test:netlify:cli": "node tests/netlify-cli.mjs",
+    "test:intro": "node tests/intro.mjs"
   },
   "dependencies": {
     "pdf-lib": "1.17.1",

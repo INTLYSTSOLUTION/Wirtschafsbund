@@ -68,3 +68,13 @@ Der E-Mail-Link bereitet nur einen kurzen Entwurf an derwirtschaftsbund@gmail.co
 ## Vor dem Betrieb
 
 Bestätigt sind die gemeinsame Verantwortung aller drei benannten Personen, Paul Zwicke als Postfachkontakt und eine Dreimonatsfrist für abgeschlossene Vorstellungsanfragen mit den genannten Ausnahmen. Im Impressum stehen auf Wunsch Paul Zwicke und Maximilian Siol; Finn Hülskamp bleibt in den Datenschutzhinweisen genannt. Auf ausdrücklichen Wunsch wird keine Wohnanschrift veröffentlicht; sichtbare Entwurfshinweise sind entfernt. Eine rechtliche Ausnahme von Anbieterpflichten ist damit nicht bestätigt. Paul muss die Löschregel im Postfach umsetzen; eine automatische Gmail-Löschung ist nicht eingerichtet. Die geplante Domain `wirtschaftsbund.cloud` und Netlify sind noch einzurichten. Der Passwortschutz hebt Informationspflichten nicht automatisch auf. Öffentliche Quellcode-Repositories und alte Deployments separat absichern. Netlify schützt keine bereits veröffentlichten Kopien oder frühere Git-Stände.
+
+## Markenintro
+
+Die Startseite zeigt beim ersten Aufruf pro Tab eine etwa 2,7 Sekunden lange Animation mit der unveränderten Pferdesilhouette. Lichtstreifen bauen das Zeichen auf; ein Zoom durch die Silhouette gibt die bestehende Seite frei. Ein Neuladen spielt die Animation erneut ab. Beim Zurückgehen, bei Sprungmarken und mit aktivierter Systemeinstellung für reduzierte Bewegung erscheint die Seite direkt.
+
+Die Animation lässt sich per „Überspringen“, Escape oder Tab sofort beenden. Ohne JavaScript, bei fehlenden Assets oder einem Fehler bleibt die Website nutzbar. Ein rein lokales sessionStorage-Kennzeichen (`wirtschaftsbund:intro-seen`) verhindert Wiederholungen bei interner Navigation; es enthält keine Formulardaten und wird nicht übertragen. Gesperrter Speicher verhindert den Seitenzugriff nicht.
+
+Markup: `scripts/intro.mjs`; Gestaltung und Timing: `src/assets/intro.css`; Ablauf und Ausfallsicherung: `src/assets/intro.js`. Es werden keine zusätzlichen Bibliotheken benötigt. Die Pferdesilhouette und der Hintergrund werden einmal als kleine Canvas-Texturen vorbereitet. Die Animation verwendet eine gemeinsame Zeitbasis; die Seite wird mit dem Ende des sichtbaren Übergangs direkt wieder bedienbar. Großflächige animierte SVG-Masken und Unschärfefilter werden vermieden.
+
+Prüfung nach dem Build: `npm run test:intro`. Der Test startet seinen eigenen HTTPS-Server mit den echten Zugangshandlern und temporären Testzugangsdaten. Für eine bestehende statische Vorschau kann `TEST_BASE` gesetzt werden. Deckt Desktop/Mobil, unverändertes Layout, Tastatur, Wiederholung, Navigation, reduzierte Bewegung und fehlende Assets ab.
